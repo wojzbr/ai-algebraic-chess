@@ -7,7 +7,39 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+:root {
+  --checker-size: 50px;
+}
+
+#checkerBoard {
+  display: flex;
+  flex-direction: column;
+  width: calc(8 * var(--checker-size));
+  height: calc(8 * var(--checker-size));
+  border: 1px solid black;
+}
+
+.rank {
+  display: flex;
+  width: calc(8 * var(--checker-size));
+  height: var(--checker-size);
+}
+
+.checker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--checker-size);
+  height: var(--checker-size);
+  font-weight: 700;
+}
+
+.checker.white {
+  background: white;
+  color: black;
+}
+
+.checker.black {
+  background: black;
+  color: white;
 }
