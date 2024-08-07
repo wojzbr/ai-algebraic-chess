@@ -11,6 +11,14 @@ and methods:
 - capturePiece(piece)
 - validateMove(piece, newPosition)
 
+Consider the following example:
+```
+let whitePawn = pieces[11]
+let blackPawn = pieces[19]
+movePiece(whitePawn, [3,3])
+movePiece(blackPawn, [3,4])
+```
+
 <img width="868" alt="Screenshot 2024-08-07 at 17 03 18" src="https://github.com/user-attachments/assets/dec90721-8dfb-4292-97ad-114a6014be66">
 
 ## Running locally
