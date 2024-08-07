@@ -7,7 +7,7 @@ The project's aim is to build a chess game that's based on [chess algebraic nota
 Currently, the interface to interact with the chessboard is exposed in browser console and it includes the following fields:
 - pieces
 and methods:
-- movePiece(piece, newPosition)
+- makeMove(piece, newPosition)
 - capturePiece(piece)
 - validateMove(piece, newPosition)
 
@@ -15,8 +15,8 @@ Consider the following example:
 ```
 let whitePawn = pieces[11]
 let blackPawn = pieces[19]
-movePiece(whitePawn, [3,3])
-movePiece(blackPawn, [3,4])
+makeMove(whitePawn, [3,3])
+makeMove(blackPawn, [3,4])
 ```
 
 <img width="868" alt="Screenshot 2024-08-07 at 17 03 18" src="https://github.com/user-attachments/assets/dec90721-8dfb-4292-97ad-114a6014be66">
