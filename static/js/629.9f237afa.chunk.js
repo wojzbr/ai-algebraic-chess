@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkai_algebraic_chess=self.webpackChunkai_algebraic_chess||[]).push([[629],{629:(e,s,a)=>{e.exports=a.p+"static/media/b_knight.7930be9e07b51bc0e069.svg"}}]);

@@ -1,0 +1,39 @@
+{
+  "files": {
+    "main.css": "/ai-algebraic-chess/static/css/main.19db6b19.css",
+    "main.js": "/ai-algebraic-chess/static/js/main.f9f6b852.js",
+    "static/js/481.4747b475.chunk.js": "/ai-algebraic-chess/static/js/481.4747b475.chunk.js",
+    "static/js/395.4c0436c6.chunk.js": "/ai-algebraic-chess/static/js/395.4c0436c6.chunk.js",
+    "static/js/629.9f237afa.chunk.js": "/ai-algebraic-chess/static/js/629.9f237afa.chunk.js",
+    "static/js/204.60f2daf2.chunk.js": "/ai-algebraic-chess/static/js/204.60f2daf2.chunk.js",
+    "static/js/888.94cab14c.chunk.js": "/ai-algebraic-chess/static/js/888.94cab14c.chunk.js",
+    "static/js/505.f77d2a7f.chunk.js": "/ai-algebraic-chess/static/js/505.f77d2a7f.chunk.js",
+    "static/js/230.d8b7dcab.chunk.js": "/ai-algebraic-chess/static/js/230.d8b7dcab.chunk.js",
+    "static/js/656.175441d0.chunk.js": "/ai-algebraic-chess/static/js/656.175441d0.chunk.js",
+    "static/js/770.bc8bfc22.chunk.js": "/ai-algebraic-chess/static/js/770.bc8bfc22.chunk.js",
+    "static/js/451.8e10538a.chunk.js": "/ai-algebraic-chess/static/js/451.8e10538a.chunk.js",
+    "static/js/133.a4070d29.chunk.js": "/ai-algebraic-chess/static/js/133.a4070d29.chunk.js",
+    "static/js/658.d1cd4a5b.chunk.js": "/ai-algebraic-chess/static/js/658.d1cd4a5b.chunk.js",
+    "static/js/453.608bfef8.chunk.js": "/ai-algebraic-chess/static/js/453.608bfef8.chunk.js",
+    "static/media/b_rook.svg": "/ai-algebraic-chess/static/media/b_rook.fdc575582c2cbe2ec820.svg",
+    "static/media/b_knight.svg": "/ai-algebraic-chess/static/media/b_knight.7930be9e07b51bc0e069.svg",
+    "static/media/b_king.svg": "/ai-algebraic-chess/static/media/b_king.6c8cc8fabe5215cc854d.svg",
+    "static/media/b_queen.svg": "/ai-algebraic-chess/static/media/b_queen.cf388bf415c0d33ec16f.svg",
+    "static/media/w_knight.svg": "/ai-algebraic-chess/static/media/w_knight.d47944d2cee4f8c707d1.svg",
+    "static/media/b_bishop.svg": "/ai-algebraic-chess/static/media/b_bishop.04932f63ef10dcdee115.svg",
+    "static/media/w_bishop.svg": "/ai-algebraic-chess/static/media/w_bishop.aa411d5809c6380713b4.svg",
+    "static/media/w_rook.svg": "/ai-algebraic-chess/static/media/w_rook.9e48b84f189eea24339f.svg",
+    "static/media/w_queen.svg": "/ai-algebraic-chess/static/media/w_queen.7a1aecff0f22ff68c43f.svg",
+    "static/media/b_pawn.svg": "/ai-algebraic-chess/static/media/b_pawn.be5d44ca5ee868885d21.svg",
+    "static/media/w_pawn.svg": "/ai-algebraic-chess/static/media/w_pawn.50273cc6d86861932d0a.svg",
+    "index.html": "/ai-algebraic-chess/index.html",
+    "static/media/w_king.svg": "/ai-algebraic-chess/static/media/w_king.5d58f1999749c1b5ef5b.svg",
+    "main.19db6b19.css.map": "/ai-algebraic-chess/static/css/main.19db6b19.css.map",
+    "main.f9f6b852.js.map": "/ai-algebraic-chess/static/js/main.f9f6b852.js.map",
+    "453.608bfef8.chunk.js.map": "/ai-algebraic-chess/static/js/453.608bfef8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.19db6b19.css",
+    "static/js/main.f9f6b852.js"
+  ]
+}

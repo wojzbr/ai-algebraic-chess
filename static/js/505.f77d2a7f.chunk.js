@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkai_algebraic_chess=self.webpackChunkai_algebraic_chess||[]).push([[505],{505:(e,c,s)=>{e.exports=s.p+"static/media/b_rook.fdc575582c2cbe2ec820.svg"}}]);

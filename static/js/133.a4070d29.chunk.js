@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkai_algebraic_chess=self.webpackChunkai_algebraic_chess||[]).push([[133],{133:(e,a,s)=>{e.exports=s.p+"static/media/w_queen.7a1aecff0f22ff68c43f.svg"}}]);

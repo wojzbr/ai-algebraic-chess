@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkai_algebraic_chess=self.webpackChunkai_algebraic_chess||[]).push([[230],{230:(s,a,e)=>{s.exports=e.p+"static/media/w_bishop.aa411d5809c6380713b4.svg"}}]);
