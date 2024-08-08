@@ -1,11 +1,26 @@
-import React, { ReactNode, useState } from "react";
-import Piece, { Position, PieceType } from "./Piece";
-import { v4 as uuidv4 } from "uuid";
+import React, { ReactNode, useEffect, useState } from "react";
+import Piece from "./Piece";
+import {
+  Position,
+  PieceType,
+  SwitchPlayer,
+  RenderPiece,
+  IsInsideBoard,
+  IsSamePosition,
+  GetPieceAtPosition,
+  IsPathClear,
+  ValidateMove,
+  TranslateToAlgebraic,
+  TranslateFromAlgebraic,
+  MakeMove,
+  MakeAlgebraicMove,
+  CapturePiece,
+  GetPieceTypeFromLetter,
+} from "./types";
 import Margin from "./Margin";
+import InitializeChessboard from "./InitializeChessboard";
 
 const Chessboard = () => {
-  const player_color = "black";
-  const opponent_color = "white";
 
   const chessBoard = Array.from({ length: 8 }, (_, rank) =>
     Array.from({ length: 8 }, (_, file) => ({
@@ -14,108 +29,44 @@ const Chessboard = () => {
     }))
   );
 
-  const [pieces, updatePieces] = useState<PieceType[]>(() => {
-    let temp_pieces: PieceType[] = [];
+  const [playerColor, setPlayerColor] = useState("black");
+  const [currentPlayer, setCurrentPlayer] = useState("white");
+  const [pieces, updatePieces] = useState<PieceType[]>(
+    InitializeChessboard(playerColor)
+  );
 
-    const detectType = (file: number): string => {
-      switch (file) {
-        case 0:
-        case 7:
-          return "rook";
-        case 1:
-        case 6:
-          return "knight";
-        case 2:
-        case 5:
-          return "bishop";
-        case 3:
-          return "queen";
-        case 4:
-          return "king";
-        default:
-          return ""; // This should never be reached
-      }
-    };
+  // Game initialization
+  const switchPlayer: SwitchPlayer = () => {
+    currentPlayer === "white"
+      ? setCurrentPlayer("black")
+      : setCurrentPlayer("white");
+  };
 
-    // initiate opponent pieces
-    for (let i = 0; i < 8; i++) {
-      temp_pieces.push({
-        type: detectType(i),
-        position: [i, 0],
-        color: opponent_color,
-        id: uuidv4(),
-      });
-    }
-
-    // initiate opponent pawns
-    for (let i = 0; i < 8; i++) {
-      temp_pieces.push({
-        type: "pawn",
-        position: [i, 1],
-        color: opponent_color,
-        id: uuidv4(),
-      });
-    }
-
-    // initiate player pawns
-    for (let i = 0; i < 8; i++) {
-      temp_pieces.push({
-        type: "pawn",
-        position: [i, 6],
-        color: player_color,
-        id: uuidv4(),
-      });
-    }
-
-    // initiate player pieces
-    for (let i = 0; i < 8; i++) {
-      temp_pieces.push({
-        type: detectType(i),
-        position: [i, 7],
-        color: player_color,
-        id: uuidv4(),
-      });
-    }
-
-    return temp_pieces;
-  });
-
-  const renderPiece = (position: Position): ReactNode => {
+  const renderPiece: RenderPiece = (position) => {
     let piece = pieces.find(
       (piece) =>
         piece.position[0] === position[0] && piece.position[1] === position[1]
     );
-    if (piece) return <Piece {...piece!} movePiece={movePiece} />;
+    if (piece) return <Piece {...piece!} makeMove={makeMove} />;
     else return <></>;
   };
 
-  const isInsideBoard = (position: Position): boolean => {
+  // Validity checks
+  const isInsideBoard: IsInsideBoard = (position) => {
     const [x, y] = position;
     return x >= 0 && x <= 7 && y >= 0 && y <= 7;
   };
 
-  const isSamePosition = (pos1: Position, pos2: Position): boolean => {
+  const isSamePosition: IsSamePosition = (pos1, pos2) => {
     return pos1[0] === pos2[0] && pos1[1] === pos2[1];
   };
 
-  const getPieceAtPosition = (
-    pieces: PieceType[],
-    position: Position
-  ): PieceType | undefined => {
-    return pieces.find((piece) => isSamePosition(piece.position, position));
-  };
-
-  const isPathClear = (
-    pieces: PieceType[],
-    start: Position,
-    end: Position
-  ): boolean => {
+  const isPathClear: IsPathClear = (pieces, start, end) => {
     // Add appropriate check
     return true;
   };
 
-  // Validate Move Function
-  const validateMove = (piece: PieceType, newPosition: Position): boolean => {
+  const validateMove: ValidateMove = (piece, newPosition) => {
     if (!isInsideBoard(newPosition)) {
       return false;
     }
@@ -217,32 +168,220 @@ const Chessboard = () => {
     return false;
   };
 
-  const movePiece = (piece: PieceType, newPosition: Position) => {
+  // Piece getters
+  const getPieceAtPosition: GetPieceAtPosition = (pieces, position) => {
+    return pieces.find((piece) => isSamePosition(piece.position, position));
+  };
+
+  const getPieceTypeFromLetter: GetPieceTypeFromLetter = (letter) => {
+    switch (letter.toUpperCase()) {
+      case "K":
+        return "king";
+      case "Q":
+        return "queen";
+      case "R":
+        return "rook";
+      case "B":
+        return "bishop";
+      case "N":
+        return "knight";
+      default:
+        return "pawn";
+    }
+  };
+
+  // Algebraic translations
+  const translateToAlgebraic: TranslateToAlgebraic = (
+    piece,
+    newPosition,
+    capture = false,
+    promotion = ""
+  ) => {
+    const [startX, startY] = piece.position;
+    const [endX, endY] = newPosition;
+
+    const pieceType =
+      piece.type === "pawn" ? "" : piece.type.charAt(0).toUpperCase();
+    const startColumn = String.fromCharCode(97 + startX);
+    const startRow = (startY - 1).toString();
+    const endColumn = String.fromCharCode(97 + endX);
+    const endRow = (endY + 1).toString();
+
+    const captureNotation = capture ? "x" : "";
+    const promotionNotation = promotion ? `=${promotion.toUpperCase()}` : "";
+
+    // Handle castling
+    if (piece.type === "king" && Math.abs(startX - endX) === 2) {
+      if (endX === 6) return "O-O"; // Kingside castling
+      if (endX === 2) return "O-O-O"; // Queenside castling
+    }
+
+    // Pawn move with capture
+    if (piece.type === "pawn" && capture) {
+      return `${startColumn}x${endColumn}${endRow}${promotionNotation}`;
+    }
+
+    // Regular move
+    return `${pieceType}${captureNotation}${endColumn}${endRow}${promotionNotation}`;
+  };
+
+  const translateFromAlgebraic: TranslateFromAlgebraic = (notation) => {
+    // Remove any unnecessary characters
+    let cleanNotation = notation.replace(/[+#]/g, "");
+
+    // Handle castling
+    if (cleanNotation === "O-O") {
+      // Kingside castling
+      const king = pieces.find(
+        (p) => p.type === "king" && p.color === currentPlayer
+      );
+      if (king) return { piece: king, newPosition: [6, 7] }; // e1 to g1 for white
+    } else if (cleanNotation === "O-O-O") {
+      // Queenside castling
+      const king = pieces.find(
+        (p) => p.type === "king" && p.color === currentPlayer
+      );
+      if (king) return { piece: king, newPosition: [2, 7] }; // e1 to c1 for white
+    }
+
+    // Extract promotion information if exists
+    let promotion = "";
+    if (cleanNotation.includes("=")) {
+      const parts = cleanNotation.split("=");
+      cleanNotation = parts[0];
+      promotion = parts[1];
+    }
+
+    // Capture move or regular move
+    const capture = cleanNotation.includes("x");
+    const moveParts = cleanNotation.replace(/x/g, "");
+
+    // Determine the destination position
+    const destination = moveParts.slice(-2); // Last two characters for the destination
+    const endColumn = destination[0];
+    const endRow = parseInt(destination[1], 10);
+
+    const newPosition: Position = [
+      endColumn.charCodeAt(0) - 97, // Column to index (a=0, b=1, ..., h=7)
+      endRow - 1, // Row to index (1=7, 2=6, ..., 8=0)
+    ];
+
+    // Determine the piece type and start position
+    let pieceType = "pawn"; // Default to pawn for moves like 'e4'
+    let startFile = "";
+    let startRank = -1;
+
+    // Adjust the parsing logic for moveParts
+    if (moveParts.length === 2) {
+      pieceType = "pawn"; // Simple pawn move like "e4" or "c4"
+      startFile = moveParts[0]; // Start file for the pawn
+    } else if (moveParts.length > 2) {
+      const firstChar = moveParts[0];
+      if (firstChar >= "A" && firstChar <= "Z") {
+        pieceType = getPieceTypeFromLetter(firstChar);
+        if (moveParts.length === 4) {
+          startFile = moveParts[1];
+          startRank = parseInt(moveParts[2], 10);
+        } else if (moveParts.length === 3) {
+          if (isNaN(parseInt(moveParts[1], 10))) {
+            startFile = moveParts[1];
+          } else {
+            startRank = parseInt(moveParts[1], 10);
+          }
+        }
+      } else {
+        startFile = moveParts[0];
+      }
+    }
+
+    // Find the piece to move
+    const potentialPieces = pieces.filter(
+      (p) => p.type === pieceType && p.color === currentPlayer
+    );
+
+    console.log(potentialPieces);
+
+    let piece: PieceType | undefined;
+    const matchingPieces = potentialPieces.filter((p) => {
+      const pieceFile = String.fromCharCode(97 + p.position[0]);
+      const pieceRank = p.position[1] + 1;
+
+      if (
+        (startFile && pieceFile === startFile) ||
+        (startRank !== -1 && pieceRank === startRank) ||
+        (!startFile && startRank === -1)
+      ) {
+        if (pieceType === "pawn" && capture) {
+          return pieceFile === moveParts[0];
+        }
+        return true;
+      }
+      return false;
+    });
+
+    if (matchingPieces.length > 1) {
+      throw new Error("Ambiguous notation!");
+    }
+
+    piece = matchingPieces[0];
+
+    if (!piece) throw new Error("Piece not found!");
+
+    return { piece, newPosition };
+  };
+
+  // Move-related functions
+  const makeMove: MakeMove = (piece, newPosition) => {
     if (!validateMove(piece, newPosition)) throw new Error("move not allowed!");
-    const from = piece.position;
-    const to = newPosition;
+    console.log(
+      "Algebraic notation:",
+      translateToAlgebraic(piece, newPosition)
+    );
+
     const updatedPiece = pieces.find((prevPiece) => prevPiece.id === piece.id);
 
     if (!updatedPiece) return;
-    updatedPiece.position = to;
-    updatePieces((pieces) => [...pieces, updatedPiece]);
+    updatedPiece.position = newPosition;
+
+    const capturedPiece = pieces.find((piece) =>
+      isSamePosition(piece.position, newPosition)
+    );
+    if (capturedPiece) capturePiece(capturedPiece);
+
+    updatePieces((pieces) =>
+      pieces.map((prevPiece) => {
+        if (prevPiece.id === piece.id) {
+          return piece;
+        } else return prevPiece;
+      })
+    );
+    switchPlayer();
   };
 
-  const capturePiece = (piece: PieceType) => {
+  const makeAlgebraicMove: MakeAlgebraicMove = (notation) => {
+    const { piece, newPosition } = translateFromAlgebraic(notation);
+    makeMove(piece, newPosition);
+  };
+
+  const capturePiece: CapturePiece = (capturedPiece) => {
+    console.log("capturing!", capturedPiece);
     updatePieces((pieces) => [
-      ...pieces.filter((prevPiece) => prevPiece.id !== piece.id),
+      ...pieces.filter((prevPiece) => prevPiece.id !== capturedPiece.id),
     ]);
   };
 
   if (process.env.NODE_ENV === "development") {
     (window as any).pieces = pieces;
-    (window as any).movePiece = movePiece;
+    (window as any).makeMove = makeMove;
     (window as any).capturePiece = capturePiece;
     (window as any).validateMove = validateMove;
+    (window as any).translateFromAlgebraic = translateFromAlgebraic;
+    (window as any).makeAlgebraicMove = makeAlgebraicMove;
   }
 
   return (
     <>
+      <h1>Current player: {currentPlayer}</h1>
       <div id="chessBoard">
         <Margin direction="horizontal" />
         <div className="horizontal">

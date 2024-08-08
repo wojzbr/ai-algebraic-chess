@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-export interface PieceType {
-  type: string;
-  position: Position;
-  color: string;
-  id: string;
-}
-
-export type Position = [number, number];
+import { PieceType, Position } from "./types";
 
 const getSvgPath = async (type: string, color: string): Promise<string> => {
   const colorInitial = color.charAt(0).toLowerCase();
@@ -21,10 +13,10 @@ const getSvgPath = async (type: string, color: string): Promise<string> => {
 };
 
 interface PieceProps extends PieceType {
-  movePiece: (piece: PieceType, position: Position) => void | undefined;
+  makeMove: (piece: PieceType, position: Position) => void | undefined;
 }
 
-const Piece: React.FC<PieceProps> = ({ type, position, color, id, movePiece }) => {
+const Piece: React.FC<PieceProps> = ({ type, position, color, id, makeMove }) => {
   const [svgPath, setSvgPath] = useState<string>("");
 
   useEffect(() => {
