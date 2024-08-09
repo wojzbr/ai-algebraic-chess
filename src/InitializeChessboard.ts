@@ -31,6 +31,7 @@ const InitializeChessboard = (playerColor: string): PieceType[] => {
       position: [i, 0],
       color: playerColor === "white" ? "black" : "white",
       id: uuidv4(),
+      hasMoved: false
     });
   }
 
@@ -41,6 +42,7 @@ const InitializeChessboard = (playerColor: string): PieceType[] => {
       position: [i, 1],
       color: playerColor === "white" ? "black" : "white",
       id: uuidv4(),
+      hasMoved: false
     });
   }
 
@@ -51,6 +53,7 @@ const InitializeChessboard = (playerColor: string): PieceType[] => {
       position: [i, 6],
       color: playerColor,
       id: uuidv4(),
+      hasMoved: false
     });
   }
 
@@ -61,6 +64,7 @@ const InitializeChessboard = (playerColor: string): PieceType[] => {
       position: [i, 7],
       color: playerColor,
       id: uuidv4(),
+      hasMoved: false
     });
   }
 

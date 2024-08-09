@@ -3,6 +3,7 @@ export interface PieceType {
     position: Position;
     color: string;
     id: string;
+    hasMoved: boolean;
   }
 
 export type Position = [number, number];
@@ -21,9 +22,8 @@ export type GetPieceAtPosition = (
 ) => PieceType | undefined;
 
 export type IsPathClear = (
-  pieces: PieceType[],
-  start: Position,
-  end: Position
+  piece: PieceType,
+  newPosition: Position
 ) => boolean;
 
 export type ValidateMove = (piece: PieceType, newPosition: Position) => boolean;
@@ -37,9 +37,11 @@ export type TranslateToAlgebraic = (
 
 export type TranslateFromAlgebraic = (
   notation: string
-) => { piece: PieceType; newPosition: Position };
+) => Move;
 
-export type MakeMove = (piece: PieceType, newPosition: Position) => void;
+export type MakeMove = (moves: Move) => void;
+
+export type Move = { piece: PieceType; newPosition: Position };
 
 export type MakeAlgebraicMove = (notation: string) => void;
 
