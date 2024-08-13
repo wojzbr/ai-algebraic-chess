@@ -27,7 +27,7 @@ const Chessboard = () => {
       file: file,
     }))
   );
-  const allowedPieces = new Set(['P', 'R', 'N', 'B', 'Q', 'K']);
+  const allowedPieces = new Set(["P", "R", "N", "B", "Q", "K"]);
   const [playerColor] = useState("black");
   const [currentPlayer, setCurrentPlayer] = useState("white");
   const [pieces, updatePieces] = useState<PieceType[]>(
@@ -48,7 +48,7 @@ const Chessboard = () => {
       setLoader(true);
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
-      myHeaders.append("Authorization", process.env.CLIENT_KEY || "");
+      myHeaders.append("Authorization", process.env.REACT_APP_CLIENT_KEY || "");
 
       const raw = JSON.stringify({
         promptMessages: promptMessages,
@@ -103,6 +103,28 @@ const Chessboard = () => {
       isValidLetter(nextLetter) ? nextLetter : null,
     ];
   }
+
+  // const isAdjacent = (fileA: string, fileB: string) => {
+  //   if ((fileA.length !== 1 || fileA < "a" || fileA > "z") || fileB.length !== 1 || fileB < "a" || fileB > "z") {
+  //     throw new Error("Invalid letter");
+  //   }
+  //   if (Math.abs(fileA.charCodeAt(0) - fileB.charCodeAt(0)) !== 1) return false;
+  //   else return true;
+  // }
+
+  // // Game initialization
+  // const switchPlayer: SwitchPlayer = () => {
+  //   currentPlayer === "white"
+  //     ? setCurrentPlayer("black")
+  //     : setCurrentPlayer("white");
+  // };
+  const isAdjacent = (fileA: number, fileB: number) => {
+    if (fileA < 0 || fileA > 7 || fileB < 0 || fileB > 7) {
+      throw new Error("Invalid file");
+    }
+    if (Math.abs(fileA - fileB) !== 1) return false;
+    else return true;
+  };
 
   // Game initialization
   const switchPlayer: SwitchPlayer = () => {
@@ -337,7 +359,7 @@ const Chessboard = () => {
       case "P":
         return "pawn";
       default:
-        throw new Error(`such piece type does not exist: ${letter}`);
+        return undefined;
     }
   };
 
@@ -387,180 +409,220 @@ const Chessboard = () => {
   };
 
   const fromAlgebraic: FromAlgebraic = (notation, options) => {
-    // Step 1: Initial cleaning
-    let isCheck = options?.isCheck || notation.includes("+");
-    let isCheckmate = options?.isCheckmate || notation.includes("#");
-    let isCapture = options?.isCapture || notation.includes("x");
-    let isPromotion = options?.isPromotion || notation.includes("=");
-    let isCastling = options?.isCastling || notation === "O-O" || notation === "O-O-O";
-    let promotionPiece = null;
+    const isCheck = options?.isCheck || notation.includes("+");
+    const isCheckmate = options?.isCheckmate || notation.includes("#");
+    const isCapture = options?.isCapture || notation.includes("x");
+    const isPromotion = options?.isPromotion || notation.includes("=");
+    const isCastling =
+      options?.isCastling || notation === "O-O" || notation === "O-O-O";
+    const cleanNotation = notation.replace(/[\+#x=]/g, "");
+    const promotionPiece = isPromotion
+      ? cleanNotation.match(/([A-Z])[^A-Z]*$/)?.[0]
+      : null;
+    const moveParts = cleanNotation.split("");
 
-    let pieceType = "pawn"; // Default to pawn
+    let newPosition: Position;
+    let pieceType = "pawn";
     let startFile: number | null = null;
     let startRank: number | null = null;
-    let endFile = null;
-    let endRank = null;
 
-    let cleanNotation = notation.replace(/[\+#x=]/g, "");
-
-    // Step 2: Check for castling
     if (isCastling) {
-      let rookFile, kingFile, castlingRank;
-      // Kingside castling O-O
-      if (notation === "O-O") {
-        // kingFile = 6;
-        kingFile = 7;
-        rookFile = 5;
-      }
-      // Queenside castling O-O-O
-      else {
-        // kingFile = 2;
-        kingFile = 0;
-        rookFile = 3;
-      }
+      const [kingFile, rookFile] = notation === "O-O" ? [7, 5] : [0, 3];
       const king = pieces.find(
         (p) => p.type === "king" && p.color === currentPlayer
       );
       const rook = pieces.find(
         (p) => p.type === "rook" && p.color === currentPlayer
       );
-      if (!king || !rook)
-        throw new Error("King or Rook not found for castling!");
-      castlingRank = king.position[1];
-      if (king.hasMoved || rook.hasMoved)
-        throw new Error("Cannot castle already moved pieces");
-      return { piece: king, newPosition: [kingFile, castlingRank] };
-    }
-
-    // Step 3: Handle promotion
-    if (isPromotion) {
-      // take last capital letter of the string
-      const promotionPieceMatch = cleanNotation.match(/([A-Z])[^A-Z]*$/);
-      promotionPiece = promotionPieceMatch && promotionPieceMatch[0]; // e.g., "Q" for Queen
-    }
-
-    // Step 4: Determine the piece type and destination
-    const moveParts = cleanNotation.split("");
-
-    if (moveParts.length === 2) {
-      // Pawn move like 'e4'
-      pieceType = "pawn";
-      // startFile = moveParts[0];
-    } else if (moveParts.length >= 3 && moveParts.length <= 5) {
-      // e.g. Qd5, Rdf8, Qh4e1
-      // check if piece capital letter is specified
-      if (allowedPieces.has(moveParts[0])) {
-        pieceType = getPieceTypeFromLetter(moveParts.shift()!);
+      if (!king || !rook || king.hasMoved || rook.hasMoved) {
+        throw new Error("Invalid castling");
       }
-      // if piece letter is not specified but move parts are at least of length 3,
-      // it might be a piece capture such as exd5
-      else if (isCapture) {
-        pieceType = "pawn"
-      }
-      if (cleanNotation.length === 4) {
-        // Q | h4e1, double-disambiguated move
-        startFile = cleanNotation[0].charCodeAt(0) - 97;
-        startRank = parseInt(cleanNotation[1]);
-      } else if (cleanNotation.length === 3) {
-        // R | df8, disambiguated move
-        const disambiguatedSquare = parseInt(cleanNotation[0]);
-        if (isNaN(disambiguatedSquare)) {
-          startFile = cleanNotation[0].charCodeAt(0) - 97;
-        } else {
-          startRank = disambiguatedSquare;
-        }
-      } else if (cleanNotation.length === 2) {
-        // Q | d5, regular move
-      }
+      return { piece: king, newPosition: [kingFile, king.position[1]] };
+    } else if (getPieceTypeFromLetter(moveParts[0]) !== undefined) {
+      pieceType = getPieceTypeFromLetter(moveParts.shift()!)!;
     }
-
-    const destination = cleanNotation.slice(-2);
-    endFile = destination[0];
-    endRank = parseInt(destination[1]);
-
-    const newPosition: Position = [
-      endFile.charCodeAt(0) - 97, // Column to index (a=0, b=1, ..., h=7)
-      endRank - 1, //
-    ];
-
-    // Step 5: Find the piece to move
     const potentialPieces = pieces.filter(
-      (potentialPiece) =>
-        potentialPiece.type === pieceType &&
-        potentialPiece.color === currentPlayer
+      (p) => p.type === pieceType && p.color === currentPlayer
     );
+    let matchingPieces: PieceType[] = [];
 
-    let piece: PieceType | undefined;
-    const matchingPieces =
-      potentialPieces.length === 1
-        ? potentialPieces
-        : potentialPieces.filter((potentialPiece) => {
-            const pieceFile = String.fromCharCode(
-              97 + potentialPiece.position[0]
-            );
-            const pieceRank = potentialPiece.position[1] + 1;
+    if (moveParts.length >= 2 && moveParts.length <= 4) {
+      const endFile = cleanNotation.slice(-2, -1).charCodeAt(0) - 97;
+      const endRank = parseInt(cleanNotation.slice(-1)) - 1;
+      newPosition = [endFile, endRank];
 
-            let deltaX = Math.abs(
-              destination[0].charCodeAt(0) - 97 - potentialPiece.position[0]
-            );
-            let deltaY = Math.abs(
-              parseInt(destination[1]) - 1 - potentialPiece.position[1]
-            );
-            switch (pieceType) {
-              case "pawn":
-                if (isCapture) {
-                  const files = getAdjacentFiles(pieceFile);
+      switch (moveParts.length) {
+        case 2:
+          if (!isCapture || (isCapture && pieceType !== "pawn")) {
+            matchingPieces = potentialPieces.filter((p) => {
+              const deltaX = Math.abs(endFile - p.position[0]);
+              const deltaY = Math.abs(endRank - p.position[1]);
+              switch (pieceType) {
+                case "pawn":
+                  const isSingleMove = deltaY === 1;
+                  const isDoubleMove = deltaY === 2 && !p.hasMoved;
+                  const isSameFile = deltaX === 0;
+                  return isSameFile && (isSingleMove || isDoubleMove);
+                case "rook":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    (deltaX === 0 || deltaY === 0)
+                  );
+                case "knight":
+                  return (
+                    (deltaX === 2 && deltaY === 1) ||
+                    (deltaX === 1 && deltaY === 2)
+                  );
+                case "bishop":
+                  return isPathClear(p, newPosition) && deltaX === deltaY;
+                case "queen":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    (deltaX === 0 || deltaY === 0 || deltaX === deltaY)
+                  );
+                default:
+              }
+            });
+          } else {
+            throw new Error("Incorrect moveParts length");
+          }
+          break;
+        case 3:
+          if (isCapture) {
+            // file/rank + newPosition, capture
+            // if pawn, it's sth like exd5
+            matchingPieces = potentialPieces.filter((p) => {
+              let startRank, startFile;
+              if (!isNaN(parseInt(moveParts[0]))) {
+                // it's a rank
+                startRank = parseInt(moveParts[0]);
+              } else {
+                //it's a file
+                startFile = moveParts[0].charCodeAt(0) - 97;
+              }
+              const deltaX = Math.abs(endFile - p.position[0]);
+              const deltaY = Math.abs(endRank - p.position[1]);
+              switch (p.type) {
+                case "pawn":
                   if (
-                    files.includes(moveParts[0]) &&
-                    Math.abs(pieceRank - parseInt(moveParts[1])) === 1
-                  ) {
+                    startFile &&
+                    p.position[0] === startFile &&
+                    isAdjacent(startFile, endFile)
+                  )
                     return true;
-                  }
-                } else return pieceFile === moveParts[0];
-                break;
-              case "rook":
-                return (
-                  (deltaX === 0 || deltaY === 0) &&
-                  !(deltaX === 0 && deltaY === 0)
-                );
-              case "knight":
-                if (
-                  (deltaX === 2 && deltaY === 1) ||
-                  (deltaX === 1 && deltaY === 2)
-                ) {
-                  return true;
-                }
-                break;
-              case "bishop":
-                if (
-                  Math.abs(deltaX) === Math.abs(deltaY) &&
-                  isPathClear(potentialPiece, newPosition)
-                ) {
-                  return true;
-                }
-                break;
-              default:
-                return false;
-            }
+                  else return false;
+                case "rook":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    (deltaX === 0 || deltaY === 0) &&
+                    (startFile === p.position[0] || startRank === p.position[1])
+                  );
+                case "knight":
+                  return (
+                    (deltaX === 2 && deltaY === 1) ||
+                    (deltaX === 1 &&
+                      deltaY === 2 &&
+                      (startFile === p.position[0] ||
+                        startRank === p.position[1]))
+                  );
+                case "bishop":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    deltaX === deltaY &&
+                    (startFile === p.position[0] || startRank === p.position[1])
+                  );
+                case "queen":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    (deltaX === 0 || deltaY === 0 || deltaX === deltaY) &&
+                    (startFile === p.position[0] || startRank === p.position[1])
+                  );
+                default:
+              }
+            });
+          } else {
+            // file/rank + newPosition
+            // sth like Qed5 or Q4d5
+            matchingPieces = potentialPieces.filter((p) => {
+              let startRank, startFile;
+              if (!isNaN(parseInt(moveParts[0]))) {
+                // it's a rank
+                startRank = parseInt(moveParts[0]);
+              } else {
+                //it's a file
+                startFile = moveParts[0].charCodeAt(0) - 97;
+              }
+              const deltaX = Math.abs(endFile - p.position[0]);
+              const deltaY = Math.abs(endRank - p.position[1]);
+              switch (p.type) {
+                case "pawn":
+                  if (
+                    startFile &&
+                    p.position[0] === startFile &&
+                    startFile === endFile
+                  )
+                    return true;
+                  else return false;
+                case "rook":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    (deltaX === 0 || deltaY === 0) &&
+                    (startFile === p.position[0] || startRank === p.position[1])
+                  );
+                case "knight":
+                  return (
+                    (deltaX === 2 && deltaY === 1) ||
+                    (deltaX === 1 &&
+                      deltaY === 2 &&
+                      (startFile === p.position[0] ||
+                        startRank === p.position[1]))
+                  );
+                case "bishop":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    deltaX === deltaY &&
+                    (startFile === p.position[0] || startRank === p.position[1])
+                  );
+                case "queen":
+                  return (
+                    isPathClear(p, newPosition) &&
+                    (deltaX === 0 || deltaY === 0 || deltaX === deltaY) &&
+                    (startFile === p.position[0] || startRank === p.position[1])
+                  );
+                default:
+              }
+            });
+          }
+          break;
+        case 4:
+          matchingPieces = potentialPieces.filter((p) => {
+            const startFile = moveParts[0].charCodeAt(0) - 97;
+            const startRank = parseInt(moveParts[0]);
+            return isSamePosition(p.position, [startFile, startRank]);
           });
-
-    // Step 6: Return the result with all conditions
-    if (matchingPieces.length > 1) {
-      throw new Error("Ambiguous notation!");
-    } else if (matchingPieces.length === 0) {
-      throw new Error("Piece not found!");
+          break;
+        default:
+          throw new Error("Incorrect moveParts length");
+      }
     } else {
-      piece = matchingPieces[0];
-      return {
-        piece,
-        newPosition,
-        promotionPiece: promotionPiece || undefined,
-        isCastling,
-        isCapture,
-        isCheck,
-        isCheckmate,
-      };
+      throw new Error("Incorrect move parts notation");
     }
+    if (matchingPieces.length > 1 && startFile === null && startRank === null) {
+      throw new Error("Ambiguous notation");
+    }
+    if (matchingPieces.length === 0) {
+      throw new Error("Piece not found");
+    }
+
+    return {
+      piece: matchingPieces[0],
+      newPosition,
+      promotionPiece: promotionPiece || undefined,
+      isCastling,
+      isCapture,
+      isCheck,
+      isCheckmate,
+    };
   };
 
   const makeMove: MakeMove = (move) => {
@@ -685,7 +747,7 @@ const Chessboard = () => {
           <Margin direction="vertical" />
           <div id="checkerBoard">
             {chessBoard.map((rank, rankIndex) => (
-              <div className="rank">
+              <div key={rankIndex} className="rank">
                 {rank.map((checker, fileIndex) => (
                   <div
                     key={`${rankIndex}-${fileIndex}`}

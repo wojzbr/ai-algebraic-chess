@@ -58,4 +58,4 @@ export type MakeAlgebraicMove = (notation: string) => void;
 
 export type CapturePiece = (capturedPiece: PieceType) => void;
 
-export type GetPieceTypeFromLetter = (letter: string) => string;
+export type GetPieceTypeFromLetter = (letter: string) => string | undefined;
