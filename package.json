@@ -16,7 +16,7 @@
     "uuid": "^10.0.0",
     "web-vitals": "^2.1.4"
   },
-  "homepage": "http://wojzbr.github.io/ai-algebraic-chess",
+  "homepage": "https://ai-algebraic-chess.vercel.app/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
