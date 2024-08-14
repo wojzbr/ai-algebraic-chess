@@ -1,6 +1,31 @@
 import { GetPieceAtPosition, PieceType, Position } from "../types";
 import { getPieceAtPosition } from "./validityChecks";
 
+const isMoveWithoutCheck = (
+    pieces: PieceType[],
+    piece: PieceType,
+    newPosition: Position,
+): boolean => {
+    // Step 1: Simulate the move
+    const originalPosition = piece.position;
+    piece.position = newPosition;
+
+    // Step 2: Check if the move leaves the King in check
+    const king = pieces.find(p => p.type === "king" && p.color === piece.color);
+    if (!king) {
+        throw new Error("King not found on the board");
+    }
+
+    const moveLeavesKingInCheck = isCheck(king, pieces);
+
+    // Step 3: Revert the simulated move
+    piece.position = originalPosition;
+
+    // The move is legal if it does not leave the King in check
+    return !moveLeavesKingInCheck;
+};
+
+
 const isCheck = (king: PieceType, pieces: PieceType[]): boolean => {
     if (king.type !== "king") throw new Error("cannot check a piece that's not a king");
 
@@ -253,4 +278,4 @@ const isEndangered = (
     return false; // For non-king pieces, return false if not in immediate threat
   };
 
-export {isCheck, isEndangered}
+export {isMoveWithoutCheck, isCheck, isEndangered}

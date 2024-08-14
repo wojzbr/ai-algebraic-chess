@@ -13,17 +13,16 @@ import InitializeChessboard from "./utils/InitializeChessboard";
 // import gameData from "./test_games/Kasparov_Topalov_1999.json";
 import gameData from "./test_games/Byrne_Fischer_1956.json";
 import { isCheck } from "./utils/endangermentChecks";
-import {
-  isSamePosition,
-  validateMove,
-} from "./utils/validityChecks";
+import { isSamePosition, validateMove } from "./utils/validityChecks";
 import { fromAlgebraic } from "./utils/translations";
 
+const dev_env = process.env.NODE_ENV === "development";
+
 const Chessboard = () => {
-  const [playerColor] = useState("black");
+  const [botPlayerColor] = useState("black");
   const [currentPlayer, setCurrentPlayer] = useState("white");
   const [pieces, updatePieces] = useState<PieceType[]>(
-    InitializeChessboard(playerColor)
+    InitializeChessboard(botPlayerColor)
   );
   const [input, setInput] = useState("");
   const [loader, setLoader] = useState(false);
@@ -42,7 +41,7 @@ const Chessboard = () => {
   );
 
   const makeBotMove = async () => {
-    console.log("MAKING BOT MOVE");
+    dev_env && console.log("MAKING BOT MOVE");
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", process.env.REACT_APP_CLIENT_KEY || "");
@@ -60,23 +59,20 @@ const Chessboard = () => {
     fetch(process.env.REACT_APP_API_URL || "", requestOptions)
       .then((response) => response.json()) // Parse the JSON from the response
       .then((botMessage) => {
-        console.log("Making bot move: ", botMessage.content);
+        dev_env && console.log("Making bot move: ", botMessage.content);
         makeAlgebraicMove(botMessage.content);
         setLoader(false);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => dev_env && console.log(err));
   };
 
-  // useEffect(() => {
-  //   if (currentPlayer === "black") {
-  //     setInput("");
-  //     setLoader(true);
-  //      makeBotMove().catch((error) => {
-  //         console.log(`Error ${error}, retrying!`)
-  //         makeBotMove();
-  //       });
-  //   }
-  // }, [currentPlayer]);
+  useEffect(() => {
+    if (currentPlayer === "black") {
+      setInput("");
+      setLoader(true);
+      makeBotMove()
+    }
+  }, [currentPlayer]);
 
   // Handle the change event for the input field
   const handleChange = (event: any) => {
@@ -162,7 +158,9 @@ const Chessboard = () => {
       )
     ) {
       // isEndangered()
-      console.log(`=== ${currentPlayer === 'white'? 'BLACK': 'WHITE'} IN CHECK ===`);
+      dev_env && console.log(
+        `=== ${currentPlayer === "white" ? "BLACK" : "WHITE"} IN CHECK ===`
+      );
     }
     piece.hasMoved = true;
     switchPlayer();
@@ -179,27 +177,34 @@ const Chessboard = () => {
       alert("draw");
       return;
     }
-    const translatedMove = fromAlgebraic(pieces, notation, currentPlayer);
-    if (!validateMove(pieces, translatedMove.piece, translatedMove.newPosition))
-      throw new Error(
-        `move not allowed: ${JSON.stringify(translatedMove.piece, translatedMove.newPosition)}`
-      );
-    if (translatedMove.isCheckmate) {
-      console.log("=== CHECKMATE ===")
+    try {
+      const translatedMove = fromAlgebraic(pieces, notation, currentPlayer);
+      validateMove(pieces, translatedMove.piece, translatedMove.newPosition)
+      if (translatedMove.isCheckmate) {
+        dev_env && console.log("=== CHECKMATE ===");
+      } else {
+        makeMove(translatedMove);
+        setPromptMessages((prev) => [
+          ...prev,
+          {
+            role: "user",
+            content: notation,
+          },
+        ]);
+      }
     }
-    else {
-      makeMove(translatedMove);
-      setPromptMessages((prev) => [
-        ...prev,
-        {
-          role: "user",
-          content: notation,
-        },
-      ]);
+    catch(err) {
+      console.log(
+        `move not allowed, reason: ${err}`
+      );
+      if (botPlayerColor === currentPlayer) {
+        console.log("retrying")
+        makeBotMove()
+      }
     }
   };
   const capturePiece: CapturePiece = (capturedPiece) => {
-    console.log("capturing piece:", capturedPiece);
+    dev_env && console.log("capturing piece:", capturedPiece);
     updatePieces((pieces) => [
       ...pieces.filter((prevPiece) => prevPiece.id !== capturedPiece.id),
     ]);
@@ -234,16 +239,17 @@ const Chessboard = () => {
     }
 
     for (let move of gameData.moves) {
-      console.log(currentPlayer, move);
+      dev_env && console.log(currentPlayer, move);
       makeAlgebraicMove(move);
       await delay(1000);
     }
   };
 
-  if (
-    process.env.NODE_ENV === "development" ||
-    process.env.NODE_ENV === "production"
-  ) {
+  const getPromptMessages = () => {
+    return promptMessages
+  }
+
+  if (dev_env) {
     (window as any).pieces = pieces;
     (window as any).makeMove = makeMove;
     (window as any).capturePiece = capturePiece;
@@ -252,6 +258,7 @@ const Chessboard = () => {
     (window as any).makeAlgebraicMove = makeAlgebraicMove;
     (window as any).simulateGame = simulateGame;
     (window as any).simulatedMoves = gameData.moves;
+    (window as any).getPromptMessages = getPromptMessages;
   }
   return (
     <>

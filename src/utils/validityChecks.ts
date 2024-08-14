@@ -1,4 +1,5 @@
 import { GetPieceAtPosition, GetPieceTypeFromLetter, IsInsideBoard, IsPathClear, IsSamePosition, PieceType, ValidateMove } from "../types";
+import { isMoveWithoutCheck } from "./endangermentChecks";
 
 const getPieceTypeFromLetter: GetPieceTypeFromLetter = (letter) => {
     switch (letter) {
@@ -103,8 +104,11 @@ const isInsideBoard: IsInsideBoard = (position) => {
   };
 
   const validateMove: ValidateMove = (pieces, piece, newPosition) => {
+    if (!isMoveWithoutCheck(pieces, piece, newPosition)) {
+      throw new Error("Invalid move: this move ignores a check")
+    }
     if (!isInsideBoard(newPosition)) {
-      return false;
+      throw new Error("Invalid move: newPosition outside chessboard")
     }
 
     const targetPiece = getPieceAtPosition(pieces, newPosition);
@@ -116,7 +120,7 @@ const isInsideBoard: IsInsideBoard = (position) => {
 
     // Prevent moving to a position occupied by a piece of the same color
     if (targetPiece && targetPiece.color === piece.color && !castling) {
-      return false;
+      throw new Error("Invalid move: newPosition already occupied")
     }
 
     const [x, y] = piece.position;
@@ -229,10 +233,10 @@ const isInsideBoard: IsInsideBoard = (position) => {
         break;
 
       default:
-        return false;
+        throw new Error("Invalid move")
     }
 
-    return false;
+    throw new Error("Invalid move")
   };
 
   export {isPathClear, isSamePosition, isAdjacent, validateMove, getPieceAtPosition, getPieceTypeFromLetter}
