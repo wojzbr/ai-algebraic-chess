@@ -44,7 +44,7 @@ const Chessboard = () => {
     dev_env && console.log("MAKING BOT MOVE");
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Authorization", process.env.REACT_APP_CLIENT_KEY || "");
+    myHeaders.append("Authorization", process.env.REACT_APP_CLIENT_KEY || window.localStorage.getitem("REACT_APP_CLIENT_KEY") || "");
 
     const raw = JSON.stringify({
       promptMessages: promptMessages,
