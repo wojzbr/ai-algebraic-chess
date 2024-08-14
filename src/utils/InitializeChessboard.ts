@@ -1,4 +1,4 @@
-import { PieceType } from "./types";
+import { PieceType } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 const InitializeChessboard = (playerColor: string): PieceType[] => {

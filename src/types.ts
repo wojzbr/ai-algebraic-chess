@@ -1,10 +1,10 @@
 export interface PieceType {
-    type: string;
-    position: Position;
-    color: string;
-    id: string;
-    hasMoved: boolean;
-  }
+  type: string;
+  position: Position;
+  color: string;
+  id: string;
+  hasMoved: boolean;
+}
 
 export type Position = [number, number];
 
@@ -22,11 +22,16 @@ export type GetPieceAtPosition = (
 ) => PieceType | undefined;
 
 export type IsPathClear = (
+  pieces: PieceType[],
   piece: PieceType,
   newPosition: Position
 ) => boolean;
 
-export type ValidateMove = (piece: PieceType, newPosition: Position) => boolean;
+export type ValidateMove = (
+  pieces: PieceType[],
+  piece: PieceType,
+  newPosition: Position
+) => boolean;
 
 export type ToAlgebraic = (
   piece: PieceType,
@@ -45,14 +50,27 @@ export type FromAlgebraicOptions = {
   currentPlayer?: string;
 };
 
-export type FromAlgebraic = (
-  notation: string,
-  options?: FromAlgebraicOptions
-) => Move;
-
 export type MakeMove = (moves: Move) => void;
 
-export type Move = { piece: PieceType; newPosition: Position };
+export type Move = {
+  piece: PieceType;
+  newPosition: Position;
+};
+
+export type TranslatedMove = {
+  promotionPiece?: string | undefined;
+  isCastling?: boolean;
+  isCapture?: boolean;
+  isCheck?: boolean;
+  isCheckmate?: boolean;
+}
+
+export type FromAlgebraic = (
+  pieces: PieceType[],
+  notation: string,
+  currentPlayer: string,
+  options?: FromAlgebraicOptions
+) => Move & TranslatedMove;
 
 export type MakeAlgebraicMove = (notation: string) => void;
 

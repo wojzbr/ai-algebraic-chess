@@ -117,3 +117,7 @@ body {
   background-color: #222;  /* Slightly lighter black on click */
   border-color: #222;  /* Slightly lighter black border on click */
 }
+
+#chat {
+  margin: 30px;
+}
