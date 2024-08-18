@@ -1,4 +1,4 @@
-import { GetPieceAtPosition, PieceType, Position } from "../types";
+import { GetPieceAtPosition, PieceType, PlayerColor, Position } from "../types";
 import { getPieceAtPosition } from "./validityChecks";
 
 const isMoveWithoutCheck = (
@@ -98,7 +98,7 @@ const isCheck = (king: PieceType, pieces: PieceType[]): boolean => {
     }
 
     // Check for threats from pawns (diagonally one square)
-    const pawnAttackMoves = king.color === "white"
+    const pawnAttackMoves = king.color === PlayerColor.w
         ? [[kingFile + 1, kingRank + 1], [kingFile - 1, kingRank + 1]]
         : [[kingFile + 1, kingRank - 1], [kingFile - 1, kingRank - 1]];
 
@@ -142,11 +142,11 @@ const getPossibleMoves = (
 
     switch (type) {
         case "pawn":
-            const direction = color === "white" ? 1 : -1;
+            const direction = color === PlayerColor.w ? 1 : -1;
             // Regular moves
             if (isValidPosition(file, rank + direction) && !getPieceAtPosition(pieces, [file, rank + direction])) {
                 moves.push([file, rank + direction]);
-                if ((color === "white" && rank === 2) || (color === "black" && rank === 7)) {
+                if ((color === PlayerColor.w && rank === 2) || (color === PlayerColor.b && rank === 7)) {
                     // Double move from the starting position
                     if (isValidPosition(file, rank + 2 * direction) && !getPieceAtPosition(pieces, [file, rank + 2 * direction])) {
                         moves.push([file, rank + 2 * direction]);

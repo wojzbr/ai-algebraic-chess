@@ -1,4 +1,4 @@
-import { GetPieceAtPosition, GetPieceTypeFromLetter, IsInsideBoard, IsPathClear, IsSamePosition, PieceType, ValidateMove } from "../types";
+import { GetPieceAtPosition, GetPieceTypeFromLetter, IsInsideBoard, IsPathClear, IsSamePosition, PieceType, PlayerColor, ValidateMove } from "../types";
 import { isMoveWithoutCheck } from "./endangermentChecks";
 
 const getPieceTypeFromLetter: GetPieceTypeFromLetter = (letter) => {
@@ -130,8 +130,8 @@ const isInsideBoard: IsInsideBoard = (position) => {
 
     switch (piece.type) {
       case "pawn":
-        const direction = piece.color === "white" ? 1 : -1;
-        const startRank = piece.color === "white" ? 1 : 6;
+        const direction = piece.color === PlayerColor.w ? 1 : -1;
+        const startRank = piece.color === PlayerColor.w ? 1 : 6;
 
         // Pawn's initial double move
         if (y === startRank && deltaY === 2 * direction && deltaX === 0) {

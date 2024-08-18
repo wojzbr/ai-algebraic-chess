@@ -1,7 +1,7 @@
-import { PieceType } from "../types";
+import { PieceType, PlayerColor } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
-const InitializeChessboard = (playerColor: string): PieceType[] => {
+const InitializeChessboard = (playerColor: PlayerColor): PieceType[] => {
   let temp_pieces: PieceType[] = [];
 
   const detectType = (file: number): string => {
@@ -29,7 +29,7 @@ const InitializeChessboard = (playerColor: string): PieceType[] => {
     temp_pieces.push({
       type: detectType(i),
       position: [i, 0],
-      color: playerColor === "white" ? "black" : "white",
+      color: playerColor === PlayerColor.w ? PlayerColor.b : PlayerColor.w,
       id: uuidv4(),
       hasMoved: false
     });
@@ -40,7 +40,7 @@ const InitializeChessboard = (playerColor: string): PieceType[] => {
     temp_pieces.push({
       type: "pawn",
       position: [i, 1],
-      color: playerColor === "white" ? "black" : "white",
+      color: playerColor === PlayerColor.w ? PlayerColor.b : PlayerColor.w,
       id: uuidv4(),
       hasMoved: false
     });

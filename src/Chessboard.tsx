@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, ChangeEvent } from "react";
 import Piece from "./Piece";
 import {
   PieceType,
@@ -7,6 +7,8 @@ import {
   MakeMove,
   MakeAlgebraicMove,
   CapturePiece,
+  Message,
+  PlayerColor,
 } from "./types";
 import Margin from "./Margin";
 import InitializeChessboard from "./utils/InitializeChessboard";
@@ -14,23 +16,55 @@ import InitializeChessboard from "./utils/InitializeChessboard";
 import gameData from "./test_games/Byrne_Fischer_1956.json";
 import { isCheck } from "./utils/endangermentChecks";
 import { isSamePosition, validateMove } from "./utils/validityChecks";
-import { fromAlgebraic } from "./utils/translations";
+import { fromAlgebraic } from "./utils/algebraicTranslations";
+import { Layout, Input, Button, List, Avatar, Card } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import { toFEN } from "./utils/fenTranslations";
+const { Content } = Layout;
+const { TextArea } = Input;
+
+const systemPrompt = JSON.stringify({
+  objective:
+    "We are going to play a game of chess using algebraic notation.\
+    I'll be sending moves in input_example form. You should reply according to outpt_example.\
+    I will play as white and you will play as black. Your Black King is positioned on e8.\
+    Please announce your moves in standard algebraic notation and remember that each move must be valid.\
+    To any move that's not valid chess algebraic notation move you should reply with 'Invalid move!'.\
+    Let's begin!",
+  input_example: {
+    move: "e4",
+    FEN: "RNBQKBNR/PPPP1PPP/8/4P3/8/8/pppppppp/rnbqkbnr w KQkq - 0 1",
+  },
+  output_example: {
+    move: "e6",
+  },
+});
 
 const dev_env = process.env.NODE_ENV === "development";
 
 const Chessboard = () => {
-  const [botPlayerColor] = useState("black");
-  const [currentPlayer, setCurrentPlayer] = useState("white");
+  const [botPlayerColor] = useState(PlayerColor.b);
   const [pieces, updatePieces] = useState<PieceType[]>(
     InitializeChessboard(botPlayerColor)
   );
   const [input, setInput] = useState("");
   const [loader, setLoader] = useState(false);
+
+  const [fenPositions, setFenPositions] = useState<string>(
+    "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr"
+  );
+  const [currentPlayer, setCurrentPlayer] = useState<PlayerColor>(
+    PlayerColor.w
+  );
+  const [fenCastlings, setFenCastlings] = useState<string>("KQkq");
+  const [enPassantTarget, setEnPassantTarget] = useState<string>("-");
+  const [halfmoveClock, setHalfmoveClock] = useState<number>(0);
+  const [fullmoveClock, setFullmoveClock] = useState<number>(1);
+
   const [promptMessages, setPromptMessages] = useState([
     {
       role: "system",
-      content:
-        "We are going to play a game of chess using algebraic notation. I will be playing as White, and you will be playing as Black. The Black King is positioned on e8. I will make the first move, and you will respond accordingly. Please announce your moves in standard algebraic notation and remember that I am controlling the White pieces while you control the Black pieces. To any message that's not a chess algebraic notation move you should reply with 'Provide a valid move! Reason:<short explanation on why the move isn't valid'. Let's begin!",
+      content: systemPrompt,
     },
   ]);
   const chessBoard = Array.from({ length: 8 }, (_, rank) =>
@@ -44,7 +78,12 @@ const Chessboard = () => {
     dev_env && console.log("MAKING BOT MOVE");
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Authorization", window.localStorage.getItem("REACT_APP_CLIENT_KEY") || process.env.REACT_APP_CLIENT_KEY || "");
+    myHeaders.append(
+      "Authorization",
+      window.localStorage.getItem("REACT_APP_CLIENT_KEY") ||
+        process.env.REACT_APP_CLIENT_KEY ||
+        ""
+    );
 
     const raw = JSON.stringify({
       promptMessages: promptMessages,
@@ -59,18 +98,18 @@ const Chessboard = () => {
     fetch(process.env.REACT_APP_API_URL || "", requestOptions)
       .then((response) => response.json()) // Parse the JSON from the response
       .then((botMessage) => {
-        dev_env && console.log("Making bot move: ", botMessage.content);
-        makeAlgebraicMove(botMessage.content);
+        dev_env && console.log("Making bot move: ", JSON.parse(botMessage.content).move);
+        makeAlgebraicMove(JSON.parse(botMessage.content).move);
         setLoader(false);
       })
       .catch((err) => dev_env && console.log(err));
   };
 
   useEffect(() => {
-    if (currentPlayer === "black") {
+    if (currentPlayer === "b") {
       setInput("");
       setLoader(true);
-      makeBotMove()
+      makeBotMove();
     }
   }, [currentPlayer]);
 
@@ -81,9 +120,9 @@ const Chessboard = () => {
 
   // Game initialization
   const switchPlayer: SwitchPlayer = () => {
-    currentPlayer === "white"
-      ? setCurrentPlayer("black")
-      : setCurrentPlayer("white");
+    currentPlayer === "w"
+      ? setCurrentPlayer(PlayerColor.b)
+      : setCurrentPlayer(PlayerColor.w);
   };
 
   const renderPiece: RenderPiece = (position) => {
@@ -158,9 +197,10 @@ const Chessboard = () => {
       )
     ) {
       // isEndangered()
-      dev_env && console.log(
-        `=== ${currentPlayer === "white" ? "BLACK" : "WHITE"} IN CHECK ===`
-      );
+      dev_env &&
+        console.log(
+          `=== ${currentPlayer === "w" ? "BLACK" : "WHITE"} IN CHECK ===`
+        );
     }
     piece.hasMoved = true;
     switchPlayer();
@@ -179,7 +219,7 @@ const Chessboard = () => {
     }
     try {
       const translatedMove = fromAlgebraic(pieces, notation, currentPlayer);
-      validateMove(pieces, translatedMove.piece, translatedMove.newPosition)
+      validateMove(pieces, translatedMove.piece, translatedMove.newPosition);
       if (translatedMove.isCheckmate) {
         dev_env && console.log("=== CHECKMATE ===");
       } else {
@@ -188,18 +228,15 @@ const Chessboard = () => {
           ...prev,
           {
             role: "user",
-            content: notation,
+            content: JSON.stringify({ move: notation, FEN: toFEN(pieces) }),
           },
         ]);
       }
-    }
-    catch(err) {
-      console.log(
-        `move not allowed, reason: ${err}`
-      );
+    } catch (err) {
+      console.log(`move not allowed, reason: ${err}`);
       if (botPlayerColor === currentPlayer) {
-        console.log("retrying")
-        makeBotMove()
+        console.log("retrying");
+        makeBotMove();
       }
     }
   };
@@ -246,8 +283,8 @@ const Chessboard = () => {
   };
 
   const getPromptMessages = () => {
-    return promptMessages
-  }
+    return promptMessages;
+  };
 
   if (dev_env) {
     (window as any).pieces = pieces;
@@ -259,96 +296,173 @@ const Chessboard = () => {
     (window as any).simulateGame = simulateGame;
     (window as any).simulatedMoves = gameData.moves;
     (window as any).getPromptMessages = getPromptMessages;
+    (window as any).getFen = () => {
+      return [
+        fenPositions,
+        currentPlayer,
+        fenCastlings,
+        enPassantTarget,
+        halfmoveClock,
+        fullmoveClock,
+      ].join(" ");
+    };
   }
+
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>): void => {
+    setInput(e.target.value);
+  };
+
   return (
     <>
-      <div id="chessBoard">
-        <Margin direction="horizontal" />
-        <div className="horizontal">
-          <Margin direction="vertical" />
-          <div id="checkerBoard">
-            {chessBoard.map((rank, rankIndex) => (
-              <div key={rankIndex} className="rank">
-                {rank.map((checker, fileIndex) => (
-                  <div
-                    key={`${rankIndex}-${fileIndex}`}
-                    className={`checker ${
-                      (rankIndex + fileIndex) % 2 === 0 ? "white" : "gray"
-                    }`}
-                  >
-                    {renderPiece([fileIndex, rankIndex])}
-                  </div>
-                ))}
+      <Layout
+        style={{ height: "100vh", padding: "20px", background: "#f0f2f5" }}
+      >
+        <Content
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ padding: "80px", background: "#fff" }}>
+            <div id="chessBoard">
+              <Margin direction="horizontal" />
+              <div className="horizontal">
+                <Margin direction="vertical" />
+                <div id="checkerBoard">
+                  {chessBoard.map((rank, rankIndex) => (
+                    <div key={rankIndex} className="rank">
+                      {rank.map((checker, fileIndex) => (
+                        <div
+                          key={`${rankIndex}-${fileIndex}`}
+                          className={`checker ${
+                            (rankIndex + fileIndex) % 2 === 0 ? "white" : "gray"
+                          }`}
+                        >
+                          {renderPiece([fileIndex, rankIndex])}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                <Margin direction="vertical" />
               </div>
-            ))}
+              <Margin direction="horizontal" />
+            </div>
           </div>
-          <Margin direction="vertical" />
-        </div>
-        <Margin direction="horizontal" />
-      </div>
-      <div className="vertical" id="chat">
-        <div className="vertical" id="chat">
-          <h3>Current player: {currentPlayer}</h3>
 
-          <div
-            className="messages-container"
+          <Card
             style={{
-              height: "300px",
-              overflowY: "auto",
-              border: "1px solid #ccc",
-              padding: "10px",
-              marginBottom: "10px",
+              width: "35%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              height: "80vh",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              borderRadius: "8px",
             }}
           >
-            {promptMessages.slice(1).map((message, index) => (
-              <div
-                key={index}
-                className="message"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "5px",
-                }}
-              >
-                <div
-                  className="player-circle"
-                  style={{
-                    width: "10px",
-                    height: "10px",
-                    borderRadius: "50%",
-                    backgroundColor: "gray",
-                    marginRight: "10px",
-                  }}
-                />
-                <span>{message.content}</span>
-              </div>
-            ))}
-            <div />
-          </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+              <List
+                dataSource={promptMessages
+                  .slice(1)
+                  .map((message) => ({
+                    text: message.content,
+                    sender: message.role,
+                  }))}
+                renderItem={(item: Message) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar icon={<UserOutlined />} />}
+                      title={item.sender}
+                      description={item.text}
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
 
-          <div className="horizontal">
-            <input
-              id="inputMove"
-              type="text"
-              value={input}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown} // Add the key down handler
-              disabled={loader}
-              placeholder="Enter move"
-              ref={inputRef}
-            />
-            <button
-              id="submitMove"
-              disabled={loader}
-              onClick={() => makeAlgebraicMove(input)}
-            >
-              {loader ? "awaiting..." : "submit"}
-            </button>
-          </div>
-        </div>
-      </div>
+            {/* Input Area */}
+            <div style={{ borderTop: "1px solid #f0f0f0", padding: "16px" }}>
+              <TextArea
+                value={input}
+                onChange={handleInputChange}
+                rows={2}
+                placeholder="Type your message..."
+                style={{ marginBottom: "8px", borderRadius: "4px" }}
+              />
+              <Button type="primary" block onClick={handleSubmit}>
+                Send
+              </Button>
+            </div>
+          </Card>
+        </Content>
+      </Layout>
     </>
   );
 };
 
 export default Chessboard;
+
+/*
+<div className="vertical" id="chat">
+<div className="vertical" id="chat">
+  <h3>Current player: {currentPlayer}</h3>
+
+  <div
+    className="messages-container"
+    style={{
+      height: "300px",
+      overflowY: "auto",
+      border: "1px solid #ccc",
+      padding: "10px",
+      marginBottom: "10px",
+    }}
+  >
+    {promptMessages.slice(1).map((message, index) => (
+      <div
+        key={index}
+        className="message"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "5px",
+        }}
+      >
+        <div
+          className="player-circle"
+          style={{
+            width: "10px",
+            height: "10px",
+            borderRadius: "50%",
+            backgroundColor: "gray",
+            marginRight: "10px",
+          }}
+        />
+        <span>{message.content}</span>
+      </div>
+    ))}
+    <div />
+  </div>
+
+  <div className="horizontal">
+    <input
+      id="inputMove"
+      type="text"
+      value={input}
+      onChange={handleChange}
+      onKeyDown={handleKeyDown} // Add the key down handler
+      disabled={loader}
+      placeholder="Enter move"
+      ref={inputRef}
+    />
+    <button
+      id="submitMove"
+      disabled={loader}
+      onClick={() => makeAlgebraicMove(input)}
+    >
+      {loader ? "awaiting..." : "submit"}
+    </button>
+  </div>
+</div>
+</div> */

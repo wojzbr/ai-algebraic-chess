@@ -1,7 +1,11 @@
+export enum PlayerColor {
+  w = 'w',
+  b = 'b'
+}
 export interface PieceType {
   type: string;
   position: Position;
-  color: string;
+  color: PlayerColor;
   id: string;
   hasMoved: boolean;
 }
@@ -77,3 +81,8 @@ export type MakeAlgebraicMove = (notation: string) => void;
 export type CapturePiece = (capturedPiece: PieceType) => void;
 
 export type GetPieceTypeFromLetter = (letter: string) => string | undefined;
+
+export interface Message {
+  text: string;
+  sender: string;
+}
