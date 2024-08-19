@@ -17,9 +17,10 @@ import gameData from "./test_games/Byrne_Fischer_1956.json";
 import { isCheck } from "./utils/endangermentChecks";
 import { isSamePosition, validateMove } from "./utils/validityChecks";
 import { fromAlgebraic } from "./utils/algebraicTranslations";
-import { Layout, Input, Button, List, Avatar, Card } from "antd";
+import { Layout, Input, Button, List, Avatar, Card, Row, Col } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { toFEN } from "./utils/fenTranslations";
+import Sider from "antd/es/layout/Sider";
 const { Content } = Layout;
 const { TextArea } = Input;
 
@@ -98,7 +99,8 @@ const Chessboard = () => {
     fetch(process.env.REACT_APP_API_URL || "", requestOptions)
       .then((response) => response.json()) // Parse the JSON from the response
       .then((botMessage) => {
-        dev_env && console.log("Making bot move: ", JSON.parse(botMessage.content).move);
+        dev_env &&
+          console.log("Making bot move: ", JSON.parse(botMessage.content).move);
         makeAlgebraicMove(JSON.parse(botMessage.content).move);
         setLoader(false);
       })
@@ -227,7 +229,7 @@ const Chessboard = () => {
         setPromptMessages((prev) => [
           ...prev,
           {
-            role: "user",
+            role: currentPlayer === botPlayerColor ? "assistant" : "user",
             content: JSON.stringify({ move: notation, FEN: toFEN(pieces) }),
           },
         ]);
@@ -312,19 +314,26 @@ const Chessboard = () => {
     setInput(e.target.value);
   };
 
+  useEffect(()=>{
+    console.log(promptMessages)
+  },[promptMessages])
+
   return (
     <>
-      <Layout
-        style={{ height: "100vh", padding: "20px", background: "#f0f2f5" }}
-      >
-        <Content
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ padding: "80px", background: "#fff" }}>
+      <Row>
+        <Col flex={4}>
+          <div
+            style={{
+              background: "#fff",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              borderRadius: "8px",
+              padding: "70px",
+              margin: "5px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
             <div id="chessBoard">
               <Margin direction="horizontal" />
               <div className="horizontal">
@@ -350,26 +359,29 @@ const Chessboard = () => {
               <Margin direction="horizontal" />
             </div>
           </div>
-
+        </Col>
+        <Col flex={2}>
           <Card
             style={{
-              width: "35%",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
-              height: "80vh",
+              // justifyContent: "space-between",
+              height: "600px",
+              margin: "5px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              borderRadius: "8px",
+              // overflowY: "scroll",
             }}
           >
-            <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+            <div style={{ flexGrow: 1,
+               overflowY: "scroll",
+              //   padding: "16px"
+              height: "450px"
+                }}>
               <List
-                dataSource={promptMessages
-                  .slice(1)
-                  .map((message) => ({
-                    text: message.content,
-                    sender: message.role,
-                  }))}
+                dataSource={promptMessages.slice(1).map((message) => ({
+                  text: JSON.parse(message.content).move,
+                  sender: message.role,
+                }))}
                 renderItem={(item: Message) => (
                   <List.Item>
                     <List.Item.Meta
@@ -383,21 +395,21 @@ const Chessboard = () => {
             </div>
 
             {/* Input Area */}
-            <div style={{ borderTop: "1px solid #f0f0f0", padding: "16px" }}>
+            <div style={{ borderTop: "1px solid #f0f0f0", padding: "16px", alignSelf: "flex-end" }}>
               <TextArea
                 value={input}
                 onChange={handleInputChange}
                 rows={2}
-                placeholder="Type your message..."
-                style={{ marginBottom: "8px", borderRadius: "4px" }}
+                placeholder="Input your move..."
+                style={{ marginBottom: "8px", borderRadius: "4px", resize: "none", height: "28px" }}
               />
               <Button type="primary" block onClick={handleSubmit}>
                 Send
               </Button>
             </div>
           </Card>
-        </Content>
-      </Layout>
+        </Col>
+      </Row>
     </>
   );
 };
