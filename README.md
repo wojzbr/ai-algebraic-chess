@@ -4,27 +4,13 @@
 
 The project's aim is to build a chess game that's based on [chess algebraic notation](https://en.wikipedia.org/wiki/Algebraic_notation_(chess)) under the hood. The typical drag'n'drop interface layer will be added as well, but the end goal is to connect the project to openAI, having ChatGPT as your opponent - algebraic notation is an effective way to achieve that.
 
-Currently, the interface to interact with the chessboard is exposed in browser console and it includes the following fields:
-- pieces
-and methods:
-- makeMove(piece, newPosition)
-- capturePiece(piece)
-- validateMove(piece, newPosition)
-
-Consider the following example:
-```
-let whitePawn = pieces[11]
-let blackPawn = pieces[19]
-makeMove(whitePawn, [3,3])
-makeMove(blackPawn, [3,4])
-```
-
-<img width="868" alt="Screenshot 2024-08-07 at 17 03 18" src="https://github.com/user-attachments/assets/dec90721-8dfb-4292-97ad-114a6014be66">
-
-## Running locally
-
-The app is available publicly thanks to GitHub Pages - feel free to play with it under https://wojzbr.github.io/ai-algebraic-chess/
+<img width="971" alt="Screenshot 2024-10-25 at 13 01 07" src="https://github.com/user-attachments/assets/7ea7eae5-470b-4293-aad0-48a076a095db">
 
 ## Testing live
+
+The app is made available on Vercel under https://ai-algebraic-chess.vercel.app/
+It requires configuring the app with an API key, feel free to request access using the [linked form](https://docs.google.com/forms/d/e/1FAIpQLScocUH_pg5GL-Ij27yUHi9T6OMc98PawZ_wvCNG3iKGN57lig/viewform?usp=sf_link)
+
+## Running locally
 
 Use 'npm install' followed by 'npm start' and expect the app on your http://localhost:3000
