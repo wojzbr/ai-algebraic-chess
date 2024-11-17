@@ -81,7 +81,7 @@ const Chessboard = () => {
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
       "Authorization",
-      window.localStorage.getItem("REACT_APP_CLIENT_KEY") ||
+      window.localStorage.getItem("OPENAI_API_KEY") ||
         process.env.REACT_APP_CLIENT_KEY ||
         ""
     );
