@@ -30,7 +30,6 @@ const App = () => {
 
   const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setApiKey(e.target.value);
-    console.log("setting api key", e.target.value);
   };
 
   const validateApiKey = async () => {
@@ -41,7 +40,6 @@ const App = () => {
         },
       }).then((response) => {
         if (response.status === 200) {
-          console.log("STATUS 200");
           window.localStorage.setItem("OPENAI_API_KEY", apiKey);
           setIsModalVisible(false);
         } else {
