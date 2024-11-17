@@ -81,9 +81,10 @@ const Chessboard = () => {
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
       "Authorization",
-      window.localStorage.getItem("OPENAI_API_KEY") ||
-        process.env.REACT_APP_CLIENT_KEY ||
-        ""
+      "Bearer" +
+        (window.localStorage.getItem("OPENAI_API_KEY") ||
+          process.env.REACT_APP_CLIENT_KEY ||
+          "")
     );
 
     const raw = JSON.stringify({
@@ -314,9 +315,9 @@ const Chessboard = () => {
     setInput(e.target.value);
   };
 
-  useEffect(()=>{
-    console.log(promptMessages)
-  },[promptMessages])
+  useEffect(() => {
+    console.log(promptMessages);
+  }, [promptMessages]);
 
   return (
     <>
@@ -331,7 +332,7 @@ const Chessboard = () => {
               margin: "5px",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           >
             <div id="chessBoard">
@@ -372,11 +373,14 @@ const Chessboard = () => {
               // overflowY: "scroll",
             }}
           >
-            <div style={{ flexGrow: 1,
-               overflowY: "scroll",
-              //   padding: "16px"
-              height: "450px"
-                }}>
+            <div
+              style={{
+                flexGrow: 1,
+                overflowY: "scroll",
+                //   padding: "16px"
+                height: "450px",
+              }}
+            >
               <List
                 dataSource={promptMessages.slice(1).map((message) => ({
                   text: JSON.parse(message.content).move,
@@ -395,13 +399,24 @@ const Chessboard = () => {
             </div>
 
             {/* Input Area */}
-            <div style={{ borderTop: "1px solid #f0f0f0", padding: "16px", alignSelf: "flex-end" }}>
+            <div
+              style={{
+                borderTop: "1px solid #f0f0f0",
+                padding: "16px",
+                alignSelf: "flex-end",
+              }}
+            >
               <TextArea
                 value={input}
                 onChange={handleInputChange}
                 rows={2}
                 placeholder="Input your move..."
-                style={{ marginBottom: "8px", borderRadius: "4px", resize: "none", height: "28px" }}
+                style={{
+                  marginBottom: "8px",
+                  borderRadius: "4px",
+                  resize: "none",
+                  height: "28px",
+                }}
               />
               <Button type="primary" block onClick={handleSubmit}>
                 Send
@@ -415,66 +430,3 @@ const Chessboard = () => {
 };
 
 export default Chessboard;
-
-/*
-<div className="vertical" id="chat">
-<div className="vertical" id="chat">
-  <h3>Current player: {currentPlayer}</h3>
-
-  <div
-    className="messages-container"
-    style={{
-      height: "300px",
-      overflowY: "auto",
-      border: "1px solid #ccc",
-      padding: "10px",
-      marginBottom: "10px",
-    }}
-  >
-    {promptMessages.slice(1).map((message, index) => (
-      <div
-        key={index}
-        className="message"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "5px",
-        }}
-      >
-        <div
-          className="player-circle"
-          style={{
-            width: "10px",
-            height: "10px",
-            borderRadius: "50%",
-            backgroundColor: "gray",
-            marginRight: "10px",
-          }}
-        />
-        <span>{message.content}</span>
-      </div>
-    ))}
-    <div />
-  </div>
-
-  <div className="horizontal">
-    <input
-      id="inputMove"
-      type="text"
-      value={input}
-      onChange={handleChange}
-      onKeyDown={handleKeyDown} // Add the key down handler
-      disabled={loader}
-      placeholder="Enter move"
-      ref={inputRef}
-    />
-    <button
-      id="submitMove"
-      disabled={loader}
-      onClick={() => makeAlgebraicMove(input)}
-    >
-      {loader ? "awaiting..." : "submit"}
-    </button>
-  </div>
-</div>
-</div> */
