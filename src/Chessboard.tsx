@@ -383,13 +383,9 @@ const Chessboard = () => {
                 placeholder="Input your move..."
                 maxLength={6}
                 onPressEnter={handleSubmit}
-                style={{
-                  marginBottom: "8px",
-                  borderRadius: "4px",
-                  height: "28px",
-                }}
+                className="move-input"
               />
-              <Button type="primary" block onClick={handleSubmit}>
+              <Button className="move-button" type="primary" block onClick={handleSubmit}>
                 Send
               </Button>
             </div>

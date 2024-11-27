@@ -80,7 +80,7 @@ body {
   flex-direction: row;
 }
 
-#inputMove {
+/* #inputMove {
   width: 100px;
   height: 30px;
   font-size: 18px;
@@ -92,9 +92,9 @@ body {
 
 #inputMove:focus {
   border-color: #000;
-}
+} */
 
-#submitMove {
+/* #submitMove {
   width: 100px;
   height: 42px;
   font-size: 18px;
@@ -104,9 +104,9 @@ body {
   cursor: pointer;
   outline: none;
   transition: background-color 0.3s ease, border-color 0.3s ease;
-}
+} */
 
-#submitMove:hover {
+/* #submitMove:hover {
   background-color: #000;
   border-color: #000;
 }
@@ -114,6 +114,12 @@ body {
 #submitMove:active {
   background-color: #222;
   border-color: #222;
+} */
+
+.move-input {
+  margin-bottom: 8px;
+  border-radius: 4px;
+  height: "28px",
 }
 
 #chat {
@@ -157,16 +163,6 @@ body {
     margin: 10px;
   }
 
-  /* .chessboard-wrapper {
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 70px;
-    margin: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  } */
    .chessboard-wrapper {
     box-shadow: none;
     height: 100vw;
@@ -178,22 +174,6 @@ body {
     height: var(--checker-size);
   }
 
-  /* #checkerBoard {
-    display: flex;
-    flex-direction: column;
-    width: calc(8 * var(--checker-size));
-    height: calc(8 * var(--checker-size));
-    border: 1px solid black;
-  } */
-
-  /* .chat-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 600px;
-    margin: 5px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  } */
-
   .chat-wrapper {
     height: calc(100vh - 100vw - 40px);
     margin: 10px;
@@ -202,5 +182,16 @@ body {
 
   .chat-list-wrapper {
     height: calc(100vh - 100vw - 200px);
+  }
+
+  .move-input {
+    height: 40px;        /* Increase height of input for mobile */
+    font-size: 18px;
+  }
+
+  .move-button {
+    width: 40px;         /* Small square button */
+    height: 40px;
+    font-size: 18px;
   }
 }
