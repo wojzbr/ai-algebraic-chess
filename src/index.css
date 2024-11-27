@@ -21,8 +21,6 @@ body {
   align-items: center;
 }
 
-.margin {}
-
 .margin .file {
   width: var(--checker-size);
   height: var(--checker-margin);
@@ -86,38 +84,123 @@ body {
   width: 100px;
   height: 30px;
   font-size: 18px;
-  border: 1px solid #333;  /* Dark grey border */
-  color: #333;  /* Dark grey text */
-  outline: none;  /* Remove default outline */
+  border: 1px solid #333;
+  color: #333;
+  outline: none;
   padding: 5px;
 }
 
 #inputMove:focus {
-  border-color: #000;  /* Black border on focus */
+  border-color: #000;
 }
 
 #submitMove {
   width: 100px;
   height: 42px;
   font-size: 18px;
-  border: 1px solid #333;  /* Dark grey border */
-  background-color: #444;  /* Dark grey background */
-  color: #fff;  /* White text */
-  cursor: pointer;  /* Pointer cursor on hover */
-  outline: none;  /* Remove default outline */
+  border: 1px solid #333;
+  background-color: #444;
+  color: #fff;
+  cursor: pointer;
+  outline: none;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 #submitMove:hover {
-  background-color: #000;  /* Black background on hover */
-  border-color: #000;  /* Black border on hover */
+  background-color: #000;
+  border-color: #000;
 }
 
 #submitMove:active {
-  background-color: #222;  /* Slightly lighter black on click */
-  border-color: #222;  /* Slightly lighter black border on click */
+  background-color: #222;
+  border-color: #222;
 }
 
 #chat {
   margin: 30px;
+}
+
+
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  margin: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-list-wrapper {
+  height: 450px;
+  overflow-y: auto;
+}
+
+.chessboard-wrapper {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 70px;
+  margin: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --checker-margin: 20px;
+    --checker-size: calc((100vw - 2 * var(--checker-margin)) / 8);
+  }
+
+  #chessBoard {
+    width: 100vw;
+    height: 100vw;
+    margin: 10px;
+  }
+
+  /* .chessboard-wrapper {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 70px;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  } */
+   .chessboard-wrapper {
+    box-shadow: none;
+    height: 100vw;
+    padding: 0;
+   }
+
+  .checker {
+    width: var(--checker-size);
+    height: var(--checker-size);
+  }
+
+  /* #checkerBoard {
+    display: flex;
+    flex-direction: column;
+    width: calc(8 * var(--checker-size));
+    height: calc(8 * var(--checker-size));
+    border: 1px solid black;
+  } */
+
+  /* .chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    margin: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  } */
+
+  .chat-wrapper {
+    height: calc(100vh - 100vw - 40px);
+    margin: 10px;
+    box-shadow: none;
+  }
+
+  .chat-list-wrapper {
+    height: calc(100vh - 100vw - 200px);
+  }
 }

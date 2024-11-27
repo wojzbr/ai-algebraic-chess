@@ -338,18 +338,7 @@ const Chessboard = () => {
     <>
       <Row>
         <Col flex={4}>
-          <div
-            style={{
-              background: "#fff",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              borderRadius: "8px",
-              padding: "70px",
-              margin: "5px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div className="chessboard-wrapper">
             <div id="chessBoard">
               <Margin direction="horizontal" />
               <div className="horizontal">
@@ -377,15 +366,7 @@ const Chessboard = () => {
           </div>
         </Col>
         <Col flex={2}>
-          <Card
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              height: "600px",
-              margin: "5px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          >
+          <Card className="chat-wrapper">
             <ChatList promptMessages={promptMessages} />
             <Spin spinning={loader} size="small">
             <div
