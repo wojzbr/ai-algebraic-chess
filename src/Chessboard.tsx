@@ -17,12 +17,21 @@ import gameData from "./test_games/Byrne_Fischer_1956.json";
 import { isCheck } from "./utils/endangermentChecks";
 import { isSamePosition, validateMove } from "./utils/validityChecks";
 import { fromAlgebraic } from "./utils/algebraicTranslations";
-import { Layout, Input, Button, List, Avatar, Card, Row, Col } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import {
+  notification,
+  Input,
+  Button,
+  List,
+  Avatar,
+  Card,
+  Row,
+  Col,
+  Spin,
+  InputRef,
+} from "antd";
+import { UserOutlined, RobotOutlined } from "@ant-design/icons";
 import { toFEN } from "./utils/fenTranslations";
-import Sider from "antd/es/layout/Sider";
-const { Content } = Layout;
-const { TextArea } = Input;
+import ChatList from "./ChatList";
 
 const systemPrompt = JSON.stringify({
   objective:
@@ -74,6 +83,14 @@ const Chessboard = () => {
       file: file,
     }))
   );
+
+  const openNotification = (msg: string, dsc?: string) => {
+    notification.error({
+      message: msg,
+      description: dsc,
+      placement: "topRight",
+    });
+  };
 
   const makeBotMove = async () => {
     dev_env && console.log("MAKING BOT MOVE");
@@ -237,9 +254,10 @@ const Chessboard = () => {
       }
     } catch (err) {
       console.log(`move not allowed, reason: ${err}`);
+      openNotification("move not allowed");
       if (botPlayerColor === currentPlayer) {
-        console.log("retrying");
-        makeBotMove();
+        openNotification("Bot made an invalid move 🤖");
+        // makeBotMove();
       }
     }
   };
@@ -265,11 +283,14 @@ const Chessboard = () => {
     }
   };
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<InputRef | null>(null);
 
   useEffect(() => {
     if (loader === false && inputRef.current) {
       inputRef.current.focus();
+    }
+    else if (loader === true && inputRef.current) {
+      inputRef.current.blur();
     }
   }, [loader]);
 
@@ -311,7 +332,7 @@ const Chessboard = () => {
     };
   }
 
-  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>): void => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setInput(e.target.value);
   };
 
@@ -366,39 +387,13 @@ const Chessboard = () => {
             style={{
               display: "flex",
               flexDirection: "column",
-              // justifyContent: "space-between",
               height: "600px",
               margin: "5px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              // overflowY: "scroll",
             }}
           >
-            <div
-              style={{
-                flexGrow: 1,
-                overflowY: "scroll",
-                //   padding: "16px"
-                height: "450px",
-              }}
-            >
-              <List
-                dataSource={promptMessages.slice(1).map((message) => ({
-                  text: JSON.parse(message.content).move,
-                  sender: message.role,
-                }))}
-                renderItem={(item: Message) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={<Avatar icon={<UserOutlined />} />}
-                      title={item.sender}
-                      description={item.text}
-                    />
-                  </List.Item>
-                )}
-              />
-            </div>
-
-            {/* Input Area */}
+            <ChatList promptMessages={promptMessages} />
+            <Spin spinning={loader} size="small">
             <div
               style={{
                 borderTop: "1px solid #f0f0f0",
@@ -406,15 +401,16 @@ const Chessboard = () => {
                 alignSelf: "flex-end",
               }}
             >
-              <TextArea
+              <Input
+                ref={inputRef}
                 value={input}
                 onChange={handleInputChange}
-                rows={2}
                 placeholder="Input your move..."
+                maxLength={6}
+                onPressEnter={handleSubmit}
                 style={{
                   marginBottom: "8px",
                   borderRadius: "4px",
-                  resize: "none",
                   height: "28px",
                 }}
               />
@@ -422,6 +418,8 @@ const Chessboard = () => {
                 Send
               </Button>
             </div>
+            </Spin>
+
           </Card>
         </Col>
       </Row>
