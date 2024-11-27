@@ -7,7 +7,6 @@ import {
   MakeMove,
   MakeAlgebraicMove,
   CapturePiece,
-  Message,
   PlayerColor,
 } from "./types";
 import Margin from "./Margin";
@@ -21,20 +20,18 @@ import {
   notification,
   Input,
   Button,
-  List,
-  Avatar,
   Card,
   Row,
   Col,
   Spin,
   InputRef,
 } from "antd";
-import { UserOutlined, RobotOutlined } from "@ant-design/icons";
 import { toFEN } from "./utils/fenTranslations";
 import ChatList from "./ChatList";
 
 const systemPrompt = JSON.stringify({
   objective:
+    // eslint-disable-next-line no-multi-str
     "We are going to play a game of chess using algebraic notation.\
     I'll be sending moves in input_example form. You should reply according to outpt_example.\
     I will play as white and you will play as black. Your Black King is positioned on e8.\
@@ -115,7 +112,7 @@ const Chessboard = () => {
       redirect: "follow",
     };
     fetch(process.env.REACT_APP_API_URL || "", requestOptions)
-      .then((response) => response.json()) // Parse the JSON from the response
+      .then((response) => response.json())
       .then((botMessage) => {
         dev_env &&
           console.log("Making bot move: ", JSON.parse(botMessage.content).move);
@@ -155,7 +152,6 @@ const Chessboard = () => {
   };
 
   const makeMove: MakeMove = (move) => {
-    // let piece: PieceType, newPosition: Position;
     const { piece, newPosition } = move;
 
     const movedPiece = pieces.find((prevPiece) => prevPiece.id === piece.id);
@@ -268,14 +264,12 @@ const Chessboard = () => {
     ]);
   };
 
-  // Handle form submission
   const handleSubmit = () => {
     if (input.trim()) {
       makeAlgebraicMove(input);
     }
   };
 
-  // Handle key down event
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault(); // Prevent default form submission behavior
@@ -285,14 +279,14 @@ const Chessboard = () => {
 
   const inputRef = useRef<InputRef | null>(null);
 
-  useEffect(() => {
-    if (loader === false && inputRef.current) {
-      inputRef.current.focus();
-    }
-    else if (loader === true && inputRef.current) {
-      inputRef.current.blur();
-    }
-  }, [loader]);
+  // useEffect(() => {
+  //   if (loader === false && inputRef.current) {
+  //     inputRef.current.focus();
+  //   }
+  //   else if (loader === true && inputRef.current) {
+  //     inputRef.current.blur();
+  //   }
+  // }, [loader]);
 
   const simulateGame = async () => {
     function delay(ms: number) {
