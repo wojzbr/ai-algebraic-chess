@@ -11,7 +11,7 @@ The project's aim is to build a chess game that's based on [chess algebraic nota
 The app is made available on Vercel under https://ai-algebraic-chess.vercel.app/
 It requires configuring the app with an OpenAI API key which can be generated in your OpenAI account [here](https://platform.openai.com/api-keys). The API key is only stored locally in your browser's localStorage - it's not sored or logged by the app.
 
-<img width="1141" alt="Screenshot 2024-11-27 at 19 06 39" src="https://github.com/user-attachments/assets/352db92a-40da-4611-b3e4-033c5613c1c3">
+<img width="1141" alt="Screenshot 2024-11-27 at 19 11 51" src="https://github.com/user-attachments/assets/2fa8f8aa-a647-468e-9cbb-9e2f693abbd5">
 
 ## Running locally
 
