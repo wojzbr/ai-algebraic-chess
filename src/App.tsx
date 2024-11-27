@@ -54,7 +54,7 @@ const App = () => {
   return (
     <div className="App">
       <Modal
-        title="Chessboard"
+        title="API key missing"
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
