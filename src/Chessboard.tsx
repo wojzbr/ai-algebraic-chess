@@ -26,6 +26,7 @@ import {
   Spin,
   InputRef,
 } from "antd";
+import { SendOutlined } from "@ant-design/icons";
 import { toFEN } from "./utils/fenTranslations";
 import ChatList from "./ChatList";
 
@@ -370,11 +371,7 @@ const Chessboard = () => {
             <ChatList promptMessages={promptMessages} />
             <Spin spinning={loader} size="small">
             <div
-              style={{
-                borderTop: "1px solid #f0f0f0",
-                padding: "16px",
-                alignSelf: "flex-end",
-              }}
+              className="move-input-wrapper"
             >
               <Input
                 ref={inputRef}
@@ -385,9 +382,14 @@ const Chessboard = () => {
                 onPressEnter={handleSubmit}
                 className="move-input"
               />
-              <Button className="move-button" type="primary" block onClick={handleSubmit}>
-                Send
-              </Button>
+                <Button
+                className="move-button"
+                type="primary"
+                onClick={handleSubmit}
+                >
+                <div className="button-text">Send</div>
+                <span className="button-icon"><SendOutlined /></span>
+                </Button>
             </div>
             </Spin>
 

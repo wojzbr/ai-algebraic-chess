@@ -80,46 +80,20 @@ body {
   flex-direction: row;
 }
 
-/* #inputMove {
-  width: 100px;
-  height: 30px;
-  font-size: 18px;
-  border: 1px solid #333;
-  color: #333;
-  outline: none;
-  padding: 5px;
+.move-input-wrapper {
+  border-top: 1px solid #f0f0f0;
+  padding: 16px;
+  align-self: flex-end;
 }
-
-#inputMove:focus {
-  border-color: #000;
-} */
-
-/* #submitMove {
-  width: 100px;
-  height: 42px;
-  font-size: 18px;
-  border: 1px solid #333;
-  background-color: #444;
-  color: #fff;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-} */
-
-/* #submitMove:hover {
-  background-color: #000;
-  border-color: #000;
-}
-
-#submitMove:active {
-  background-color: #222;
-  border-color: #222;
-} */
 
 .move-input {
   margin-bottom: 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   height: "28px",
+}
+
+.move-button {
+  width: 100%;
 }
 
 #chat {
@@ -182,21 +156,34 @@ body {
     height: calc(100vh - 100vw - 40px);
     margin: 10px;
     box-shadow: none;
+    border: none;
   }
 
   .chat-list-wrapper {
-    height: calc(100vh - 100vw - 200px - env(safe-area-inset-bottom));
+    /* height: calc(100vh - 100vw - 200px - env(safe-area-inset-bottom)); */
+    display: none;
+  }
+
+  .move-input-wrapper {
+    border: none;
+    padding: 0;
   }
 
   .move-input {
-    height: 40px;        /* Increase height of input for mobile */
+    height: 40px;
+    width: calc(100% - 50px);
     font-size: 18px;
   }
 
   .move-button {
-    width: 40px;         /* Small square button */
+    width: 40px;
     height: 40px;
+    margin-left: 10px;
     font-size: 18px;
+  }
+
+  .button-text {
+    display: none;
   }
 
   html, body {
