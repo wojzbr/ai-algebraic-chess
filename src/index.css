@@ -157,6 +157,10 @@ body {
     --checker-size: calc((100vw - 2 * var(--checker-margin)) / 8);
   }
 
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   #chessBoard {
     width: 100vw;
     height: 100vw;
@@ -181,7 +185,7 @@ body {
   }
 
   .chat-list-wrapper {
-    height: calc(100vh - 100vw - 200px);
+    height: calc(100vh - 100vw - 200px - env(safe-area-inset-bottom));
   }
 
   .move-input {
@@ -193,5 +197,12 @@ body {
     width: 40px;         /* Small square button */
     height: 40px;
     font-size: 18px;
+  }
+
+  html, body {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: none;
   }
 }
