@@ -381,6 +381,7 @@ const Chessboard = () => {
                 maxLength={6}
                 onPressEnter={handleSubmit}
                 className="move-input"
+                autoCapitalize={"none"}
               />
                 <Button
                 className="move-button"
